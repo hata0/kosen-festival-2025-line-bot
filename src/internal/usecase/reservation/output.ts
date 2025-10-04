@@ -1,4 +1,4 @@
-import { ReservationId } from "../../domain/reservation/id";
+import { ReservationId } from "@/internal/domain/reservation";
 
 export class CreateReservationOutput {
   public readonly id: string;

@@ -1,10 +1,11 @@
-import { ReservationRepository } from "../../domain/reservation/repository";
-import { IdService } from "../service/id";
-import { TimeService } from "../service/time";
+import {
+  Reservation,
+  ReservationId,
+  ReservationRepository,
+} from "@/internal/domain/reservation";
 import { CreateReservationInput } from "./input";
 import { CreateReservationOutput } from "./output";
-import { Reservation } from "../../domain/reservation";
-import { ReservationId } from "../../domain/reservation/id";
+import { IdService, TimeService } from "../service";
 
 export interface ReservationUsecase {
   create(input: CreateReservationInput): Promise<CreateReservationOutput>;

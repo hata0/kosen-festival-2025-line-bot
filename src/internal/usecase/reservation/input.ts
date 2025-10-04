@@ -1,4 +1,4 @@
-import { UserId } from "../../domain/user/id";
+import { UserId } from "@/internal/domain/user";
 
 export class CreateReservationInput {
   public readonly userId: UserId;
