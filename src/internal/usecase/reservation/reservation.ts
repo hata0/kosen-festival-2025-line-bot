@@ -1,27 +1,24 @@
-import {
-  Reservation,
-  ReservationId,
-  ReservationRepository,
-} from "@/internal/domain/reservation";
+import { Reservation, ReservationId } from "@/internal/domain/reservation";
 import { CreateReservationInput } from "./input";
 import { CreateReservationOutput } from "./output";
 import { IdService, TimeService } from "../service";
+import { TransactionManager } from "@/internal/domain/transaction";
 
 export interface ReservationUsecase {
   create(input: CreateReservationInput): Promise<CreateReservationOutput>;
 }
 
 export class ReservationInteractor implements ReservationUsecase {
-  private readonly reservationRepository: ReservationRepository;
+  private readonly txManager: TransactionManager;
   private readonly idService: IdService;
   private readonly timeService: TimeService;
 
   constructor(
-    reservationRepository: ReservationRepository,
+    txManager: TransactionManager,
     idService: IdService,
     timeService: TimeService
   ) {
-    this.reservationRepository = reservationRepository;
+    this.txManager = txManager;
     this.idService = idService;
     this.timeService = timeService;
   }
@@ -29,13 +26,20 @@ export class ReservationInteractor implements ReservationUsecase {
   public async create(
     input: CreateReservationInput
   ): Promise<CreateReservationOutput> {
-    const reservationId = new ReservationId(this.idService.generate());
-    const now = this.timeService.now();
+    return this.txManager.do(async (txRepos) => {
+      const reservationId = new ReservationId(this.idService.generate());
+      const now = this.timeService.now();
 
-    const reservation = new Reservation(reservationId, input.userId, now, now);
+      const reservation = new Reservation(
+        reservationId,
+        input.userId,
+        now,
+        now
+      );
 
-    await this.reservationRepository.create(reservation);
+      await txRepos.reservation.create(reservation);
 
-    return new CreateReservationOutput(reservationId);
+      return new CreateReservationOutput(reservationId);
+    });
   }
 }
