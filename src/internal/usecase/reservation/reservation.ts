@@ -1,11 +1,11 @@
 import { Reservation, ReservationId } from "@/internal/domain/reservation";
 import { CreateReservationInput } from "./input";
-import { CreateReservationOutput } from "./output";
 import { IdService, TimeService } from "../service";
 import { TransactionManager } from "@/internal/domain/transaction";
+import { UserId } from "@/internal/domain/user";
 
 export interface ReservationUsecase {
-  create(input: CreateReservationInput): Promise<CreateReservationOutput>;
+  create(input: CreateReservationInput): Promise<void>;
 }
 
 export class ReservationInteractor implements ReservationUsecase {
@@ -25,21 +25,19 @@ export class ReservationInteractor implements ReservationUsecase {
 
   public async create(
     input: CreateReservationInput
-  ): Promise<CreateReservationOutput> {
+  ): Promise<void> {
     return this.txManager.do(async (txRepos) => {
       const reservationId = new ReservationId(this.idService.generate());
       const now = this.timeService.now();
 
       const reservation = new Reservation(
         reservationId,
-        input.userId,
+        new UserId(input.userId),
         now,
         now
       );
 
       await txRepos.reservation.create(reservation);
-
-      return new CreateReservationOutput(reservationId);
     });
   }
 }
