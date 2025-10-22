@@ -1,5 +1,5 @@
 import { AppConfig } from "@/internal/infrastructure/config/app";
-import { CreateReservationInput, ReservationUsecase } from "@/internal/usecase/reservation";
+import { CreateReservationInput, GetReservationByUserIdInput, ReservationUsecase } from "@/internal/usecase/reservation";
 import { messagingApi, validateSignature, WebhookEvent, WebhookRequestBody } from "@line/bot-sdk";
 import { Context, TypedResponse } from "hono";
 import { match } from "ts-pattern";
@@ -35,7 +35,7 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
     await Promise.all(
       body.events.map(async(e)=>{
         await match(e)
-        .with({type: "message"}, async(e)=>{
+        .with({type: "message", message: {type: "text", text: "予約作成"}}, async(e)=>{
           const userId = e.source.userId
           if(userId === undefined){
             return
@@ -48,6 +48,22 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
             messages: [{
               type: "text",
               text: "予約を作成しました。"
+            }]
+          })
+        })
+        .with({type: "message", message: {type: "text", text: "予約情報"}}, async(e)=>{
+          const userId = e.source.userId
+          if(userId === undefined){
+            return
+          }
+
+          await this.reservationUsecase.getByUserId(new GetReservationByUserIdInput(userId))
+
+          await client.replyMessage({
+            replyToken: e.replyToken,
+            messages: [{
+              type: "text",
+              text: "予約情報を表示する"
             }]
           })
         })
