@@ -1,8 +1,6 @@
-import { Reservation, ReservationId } from "@/internal/domain/reservation";
+import { Reservation, ReservationId, ReservationRepository } from "@/internal/domain/reservation";
 import { CancelReservationInput, CreateReservationInput, GetReservationByUserIdInput } from "./input";
 import { IdService, TimeService } from "../service";
-import { TransactionManager } from "@/internal/domain/transaction";
-import { UserId } from "@/internal/domain/user";
 import { GetReservationOutput } from "./output";
 
 export interface ReservationUsecase {
@@ -12,19 +10,11 @@ export interface ReservationUsecase {
 }
 
 export class ReservationInteractor implements ReservationUsecase {
-  private readonly txManager: TransactionManager;
-  private readonly idService: IdService;
-  private readonly timeService: TimeService;
-
   constructor(
-    txManager: TransactionManager,
-    idService: IdService,
-    timeService: TimeService
-  ) {
-    this.txManager = txManager;
-    this.idService = idService;
-    this.timeService = timeService;
-  }
+    private readonly idService: IdService,
+    private readonly timeService: TimeService,
+    private readonly reservationRepository: ReservationRepository
+  ) {}
   
   getByUserId(input: GetReservationByUserIdInput): Promise<GetReservationOutput> {
     throw new Error("Method not implemented.");
@@ -33,19 +23,17 @@ export class ReservationInteractor implements ReservationUsecase {
   public async create(
     input: CreateReservationInput
   ): Promise<void> {
-    return this.txManager.do(async (txRepos) => {
-      const reservationId = new ReservationId(this.idService.generate());
-      const now = this.timeService.now();
+    const reservationId = new ReservationId(this.idService.generate());
+    const now = this.timeService.now();
 
-      const reservation = new Reservation(
-        reservationId,
-        new UserId(input.userId),
-        now,
-        now
-      );
+    const reservation = new Reservation(
+      reservationId,
+      input.userId,
+      "UNCOMPLETED",
+      now
+    );
 
-      await txRepos.reservation.create(reservation);
-    });
+    await this.reservationRepository.create(reservation);
   }
 
   cancel(input: CancelReservationInput): Promise<void> {

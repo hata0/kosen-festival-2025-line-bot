@@ -1,0 +1,1 @@
+export type ReservationStatus = "UNCOMPLETED" | "COMPLETED"

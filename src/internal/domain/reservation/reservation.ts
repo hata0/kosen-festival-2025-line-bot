@@ -1,22 +1,13 @@
 import { ReservationId } from "./id";
-import { UserId } from "../user";
+import { ReservationStatus } from "./reservation-status";
 
 export class Reservation {
-  public readonly id: ReservationId;
-  public readonly userId: UserId;
-  public readonly createdAt: Date;
-  public readonly updatedAt: Date;
-
   constructor(
-    id: ReservationId,
-    userId: UserId,
-    createdAt: Date,
-    updatedAt: Date
+    public readonly id: ReservationId,
+    public readonly lineUserId: string,
+    public readonly status: ReservationStatus,
+    public readonly createdAt: Date,
   ) {
-    this.id = id;
-    this.userId = userId;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
   }
 
   public equals(other: Reservation): boolean {
