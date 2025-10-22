@@ -1,5 +1,5 @@
 import { AppConfig } from "@/internal/infrastructure/config/app";
-import { CreateReservationInput, GetReservationByUserIdInput, ReservationUsecase } from "@/internal/usecase/reservation";
+import { CancelReservationInput, CreateReservationInput, GetReservationByUserIdInput, ReservationUsecase } from "@/internal/usecase/reservation";
 import { messagingApi, validateSignature, WebhookEvent, WebhookRequestBody } from "@line/bot-sdk";
 import { Context, TypedResponse } from "hono";
 import { match } from "ts-pattern";
@@ -64,6 +64,22 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
             messages: [{
               type: "text",
               text: "予約情報を表示する"
+            }]
+          })
+        })
+        .with({type: "message", message: {type: "text", text: "予約キャンセル"}}, async(e)=>{
+          const userId = e.source.userId
+          if(userId === undefined){
+            return
+          }
+
+          await this.reservationUsecase.cancel(new CancelReservationInput(userId))
+
+          await client.replyMessage({
+            replyToken: e.replyToken,
+            messages: [{
+              type: "text",
+              text: "予約をキャンセルしました。"
             }]
           })
         })

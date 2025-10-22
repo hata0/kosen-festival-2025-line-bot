@@ -1,5 +1,5 @@
 import { Reservation, ReservationId } from "@/internal/domain/reservation";
-import { CreateReservationInput, GetReservationByUserIdInput } from "./input";
+import { CancelReservationInput, CreateReservationInput, GetReservationByUserIdInput } from "./input";
 import { IdService, TimeService } from "../service";
 import { TransactionManager } from "@/internal/domain/transaction";
 import { UserId } from "@/internal/domain/user";
@@ -8,6 +8,7 @@ import { GetReservationOutput } from "./output";
 export interface ReservationUsecase {
   getByUserId(input: GetReservationByUserIdInput): Promise<GetReservationOutput>
   create(input: CreateReservationInput): Promise<void>;
+  cancel(input: CancelReservationInput): Promise<void>
 }
 
 export class ReservationInteractor implements ReservationUsecase {
@@ -45,5 +46,9 @@ export class ReservationInteractor implements ReservationUsecase {
 
       await txRepos.reservation.create(reservation);
     });
+  }
+
+  cancel(input: CancelReservationInput): Promise<void> {
+    throw new Error("Method not implemented.");
   }
 }
