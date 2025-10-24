@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@line/bot-sdk": "^10.3.0",
+    "googleapis": "^164.1.0",
     "hono": "^4.9.9",
     "ts-pattern": "^5.8.0"
   },
