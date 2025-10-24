@@ -1,13 +1,11 @@
-import { Reservation, ReservationId, ReservationRepository } from "@/internal/domain/reservation";
-import { IdService, TimeService } from "../service";
+import { ReservationFactory, ReservationRepository } from "@/internal/domain/reservation";
 import { ReservationUsecase } from "./reservation";
 import { GetReservationOutput } from "./output";
 import { CancelReservationInput, CreateReservationInput, GetReservationByUserIdInput } from "./input";
 
 export class ReservationUsecaseImpl implements ReservationUsecase {
   constructor(
-    private readonly idService: IdService,
-    private readonly timeService: TimeService,
+    private readonly reservationFactory: ReservationFactory,
     private readonly reservationRepository: ReservationRepository
   ) {}
   
@@ -18,15 +16,7 @@ export class ReservationUsecaseImpl implements ReservationUsecase {
   public async create(
     input: CreateReservationInput
   ): Promise<void> {
-    const reservationId = new ReservationId(this.idService.generate());
-    const now = this.timeService.now();
-
-    const reservation = new Reservation(
-      reservationId,
-      input.userId,
-      "UNCOMPLETED",
-      now
-    );
+    const reservation = this.reservationFactory.create(input.lineUserId)
 
     await this.reservationRepository.create(reservation);
   }

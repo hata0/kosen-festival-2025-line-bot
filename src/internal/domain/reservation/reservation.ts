@@ -5,6 +5,7 @@ export class Reservation {
   constructor(
     public readonly id: ReservationId,
     public readonly lineUserId: string,
+    public readonly confirmationCode: string,
     public readonly status: ReservationStatus,
     public readonly createdAt: Date,
   ) {

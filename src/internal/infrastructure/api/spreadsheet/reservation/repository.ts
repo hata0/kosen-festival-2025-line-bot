@@ -23,11 +23,12 @@ export class SpreadsheetReservationRepository implements ReservationRepository {
     // https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets.values/append?hl=ja
     await this.sheets.spreadsheets.values.append({
       spreadsheetId: this.config.spreadsheetApi.spreadsheetId,
-      range: "A:D",
+      range: "A:E",
       valueInputOption: 'RAW',
       requestBody: {
         values: [[
           reservation.lineUserId,
+          reservation.confirmationCode,
           reservation.status,
           format(reservation.createdAt, "yyyy/MM/dd HH:mm:ss.SSS", { in: tz("Asia/Tokyo") }),
           reservation.createdAt.toISOString()

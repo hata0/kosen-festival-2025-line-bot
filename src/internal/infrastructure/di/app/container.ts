@@ -1,14 +1,16 @@
 import { ConfigContainer } from "../config";
 import { ServerApiContainer } from "../api/server";
 import { UsecaseContainer } from "../usecase";
-import { ServiceContainer } from "../service";
 import { RepositoryContainer } from "../repository";
+import { CommonContainer } from "../common";
+import { FactoryContainer } from "../factory";
 
 export class AppContainer {
-  private readonly service = new ServiceContainer()
+  private readonly common = new CommonContainer()
   private readonly config = new ConfigContainer()
+  private readonly factory = new FactoryContainer(this.common)
   private readonly repository = new RepositoryContainer(this.config)
-  private readonly usecase = new UsecaseContainer(this.service, this.repository)
+  private readonly usecase = new UsecaseContainer(this.factory, this.repository)
 
   public readonly serverApi = new ServerApiContainer(this.usecase, this.config)
 }

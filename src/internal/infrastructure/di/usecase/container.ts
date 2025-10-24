@@ -1,11 +1,11 @@
 import { ReservationUsecase, ReservationUsecaseImpl } from "@/internal/usecase/reservation";
-import { ServiceContainer } from "../service";
 import { RepositoryContainer } from "../repository";
+import { FactoryContainer } from "../factory";
 
 export class UsecaseContainer {
     public readonly reservationUsecase: ReservationUsecase
     
-    constructor(service: ServiceContainer, repository: RepositoryContainer){
-        this.reservationUsecase = new ReservationUsecaseImpl(service.idService, service.timeService, repository.reservationRepository)
+    constructor(factory: FactoryContainer, repository: RepositoryContainer){
+        this.reservationUsecase = new ReservationUsecaseImpl(factory.reservationFactory, repository.reservationRepository)
     }
 }
