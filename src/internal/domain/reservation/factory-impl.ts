@@ -2,6 +2,7 @@ import { Id, Randomizer, Time } from "../common";
 import { ReservationFactory } from "./factory";
 import { ReservationId } from "./id";
 import { Reservation } from "./reservation";
+import { RESERVATION_STATUS } from "./reservation-status";
 
 export class ReservationFactoryImpl implements ReservationFactory {
     constructor(
@@ -19,7 +20,7 @@ export class ReservationFactoryImpl implements ReservationFactory {
       reservationId,
       lineUserId,
       confirmationCode,
-      "UNCOMPLETED",
+      RESERVATION_STATUS.UNCOMPLETED,
       now
     );
     }
