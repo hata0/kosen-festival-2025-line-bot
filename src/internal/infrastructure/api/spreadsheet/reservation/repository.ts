@@ -1,6 +1,8 @@
 import { Reservation, ReservationRepository } from "@/internal/domain/reservation";
 import { AppConfig } from "@/internal/infrastructure/config/app";
 import { google} from "googleapis"
+import {format} from "date-fns"
+import { tz } from "@date-fns/tz";
 
 export class SpreadsheetReservationRepository implements ReservationRepository {
   private readonly sheets;
@@ -21,12 +23,13 @@ export class SpreadsheetReservationRepository implements ReservationRepository {
     // https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets.values/append?hl=ja
     await this.sheets.spreadsheets.values.append({
       spreadsheetId: this.config.spreadsheetApi.spreadsheetId,
-      range: "A:C",
+      range: "A:D",
       valueInputOption: 'RAW',
       requestBody: {
         values: [[
           reservation.lineUserId,
           reservation.status,
+          format(reservation.createdAt, "yyyy/MM/dd HH:mm:ss.SSS", { in: tz("Asia/Tokyo") }),
           reservation.createdAt.toISOString()
         ]]
       }
