@@ -1,6 +1,5 @@
-export type ReservationErrorCode =
-  (typeof RESERVATION_ERROR_CODES)[keyof typeof RESERVATION_ERROR_CODES];
+import { ErrorCode } from "../error";
 
-export const RESERVATION_ERROR_CODES = {
-  DUPLICATE: "DUPLICATE_RESERVATION",
-} as const;
+export const RESERVATION_ERROR_CODE = {
+  DUPLICATE: Symbol("DUPLICATE") as ErrorCode,
+};

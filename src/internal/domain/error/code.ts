@@ -1,3 +1,3 @@
-import { ReservationErrorCode } from "../reservation";
+import { Branded } from "@/internal/core/branded";
 
-export type ErrorCode = ReservationErrorCode;
+export type ErrorCode = Branded<symbol, "ErrorCode">;
