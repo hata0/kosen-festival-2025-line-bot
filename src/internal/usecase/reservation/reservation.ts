@@ -1,9 +1,9 @@
-import { CancelReservationInput, CreateReservationInput, GetReservationByUserIdInput, GetUncompletedCountInput } from "./input";
-import { GetReservationOutput, GetUncompletedCountOutput } from "./output";
+import { UpdateReservationInput, CreateReservationInput, GetReservationByLineUserIdInput, GetReservationUncompletedCountInput } from "./input";
+import { GetReservationOutput, GetReservationUncompletedCountOutput } from "./output";
 
 export interface ReservationUsecase {
-  getByLineUserId(input: GetReservationByUserIdInput): Promise<GetReservationOutput>
-  getUncompletedCount(input: GetUncompletedCountInput): Promise<GetUncompletedCountOutput>
+  getByLineUserId(input: GetReservationByLineUserIdInput): Promise<GetReservationOutput>
+  getUncompletedCount(input: GetReservationUncompletedCountInput): Promise<GetReservationUncompletedCountOutput>
   create(input: CreateReservationInput): Promise<void>;
-  update(input: CancelReservationInput): Promise<void>
+  update(input: UpdateReservationInput): Promise<void>
 }

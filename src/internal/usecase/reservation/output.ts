@@ -8,7 +8,7 @@ export class GetReservationOutput {
     ){}
 }
 
-export class GetUncompletedCountOutput {
+export class GetReservationUncompletedCountOutput {
     constructor(
         public readonly count: number
     ) {}

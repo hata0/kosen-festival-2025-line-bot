@@ -1,7 +1,7 @@
 import { ReservationFactory, ReservationId, ReservationRepository, ReservationStatus } from "@/internal/domain/reservation";
 import { ReservationUsecase } from "./reservation";
-import { GetReservationOutput, GetUncompletedCountOutput } from "./output";
-import { CancelReservationInput, CreateReservationInput, GetReservationByUserIdInput, GetUncompletedCountInput } from "./input";
+import { GetReservationOutput, GetReservationUncompletedCountOutput } from "./output";
+import { UpdateReservationInput, CreateReservationInput, GetReservationByLineUserIdInput, GetReservationUncompletedCountInput } from "./input";
 
 export class ReservationUsecaseImpl implements ReservationUsecase {
   constructor(
@@ -9,7 +9,7 @@ export class ReservationUsecaseImpl implements ReservationUsecase {
     private readonly reservationRepository: ReservationRepository,
   ) {}
   
-  async getByLineUserId(input: GetReservationByUserIdInput): Promise<GetReservationOutput> {
+  async getByLineUserId(input: GetReservationByLineUserIdInput): Promise<GetReservationOutput> {
     const reservation = await this.reservationRepository.getByLineUserId(input.lineUserId)
 
     return new GetReservationOutput(
@@ -21,9 +21,9 @@ export class ReservationUsecaseImpl implements ReservationUsecase {
     )
   }
 
-  async getUncompletedCount(input: GetUncompletedCountInput): Promise<GetUncompletedCountOutput> {
+  async getUncompletedCount(input: GetReservationUncompletedCountInput): Promise<GetReservationUncompletedCountOutput> {
     const count = await this.reservationRepository.countUncompleted(input.createdBefore)
-    return new GetUncompletedCountOutput(count)
+    return new GetReservationUncompletedCountOutput(count)
   }
 
   async create(
@@ -34,7 +34,7 @@ export class ReservationUsecaseImpl implements ReservationUsecase {
     await this.reservationRepository.create(reservation);
   }
 
-  async update(input: CancelReservationInput): Promise<void> {
+  async update(input: UpdateReservationInput): Promise<void> {
     const reservation = await this.reservationRepository.getById(new ReservationId(input.id))
 
     const updatedReservation = reservation.update(new ReservationStatus(input.status))

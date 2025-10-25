@@ -1,10 +1,10 @@
 import { ReservationStatusType } from "@/internal/domain/reservation";
 
-export class GetReservationByUserIdInput {
+export class GetReservationByLineUserIdInput {
   constructor(public readonly lineUserId: string){}
 }
 
-export class GetUncompletedCountInput {
+export class GetReservationUncompletedCountInput {
   constructor(public readonly createdBefore?: Date) {}
 }
 
@@ -12,7 +12,7 @@ export class CreateReservationInput {
   constructor(public readonly lineUserId: string) {}
 }
 
-export class CancelReservationInput {
+export class UpdateReservationInput {
   constructor(
     public readonly id: string,
     public readonly status: ReservationStatusType

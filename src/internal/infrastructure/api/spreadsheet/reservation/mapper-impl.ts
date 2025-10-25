@@ -1,4 +1,4 @@
-import { Reservation, ReservationId, ReservationStatus } from "@/internal/domain/reservation";
+import { Reservation, ReservationId, ReservationStatus, ReservationStatusType } from "@/internal/domain/reservation";
 import { SpreadsheetApiReservationMapper } from "./mapper";
 import { format } from "date-fns";
 import { tz } from "@date-fns/tz";
@@ -18,7 +18,7 @@ export class SpreadsheetApiReservationMapperImpl implements SpreadsheetApiReserv
       new ReservationId(id),
       lineUserId,
       confirmationCode,
-      status as ReservationStatus,
+      new ReservationStatus(status as ReservationStatusType),
       new Date(createdAtIso)
     );
     }
@@ -28,7 +28,7 @@ export class SpreadsheetApiReservationMapperImpl implements SpreadsheetApiReserv
       entity.id.toString(),
       entity.lineUserId,
       entity.confirmationCode,
-      entity.status,
+      entity.status.value,
       format(entity.createdAt, "yyyy/MM/dd HH:mm:ss.SSS", { in: tz("Asia/Tokyo") }),
       entity.createdAt.toISOString()
     ];

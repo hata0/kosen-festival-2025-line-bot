@@ -64,9 +64,9 @@ export class SpreadsheetApiReservationRepository implements ReservationRepositor
     try {
       await this.getByLineUserId(reservation.lineUserId);
       throw new AppError(RESERVATION_ERROR_CODE.DUPLICATE);
-    } catch (err) {
-      if (!isAppErrorWithCode(err, RESERVATION_ERROR_CODE.NOT_FOUND)) {
-        throw err
+    } catch (error) {
+      if (!isAppErrorWithCode(error, RESERVATION_ERROR_CODE.NOT_FOUND)) {
+        throw error
       }
     }
 

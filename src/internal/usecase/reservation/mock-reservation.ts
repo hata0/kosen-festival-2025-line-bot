@@ -1,9 +1,9 @@
-import { CancelReservationInput, CreateReservationInput, GetReservationByUserIdInput } from "./input";
+import { UpdateReservationInput, CreateReservationInput, GetReservationByLineUserIdInput } from "./input";
 import { GetReservationOutput } from "./output";
 import { ReservationUsecase } from "./reservation";
 
 export class MockReservationInteractor implements ReservationUsecase {
-    async getByLineUserId(input: GetReservationByUserIdInput): Promise<GetReservationOutput> {
+    async getByLineUserId(input: GetReservationByLineUserIdInput): Promise<GetReservationOutput> {
         return new GetReservationOutput(new Date())
     }
 
@@ -11,6 +11,6 @@ export class MockReservationInteractor implements ReservationUsecase {
         console.log(input)
     }
 
-    async cancel(input: CancelReservationInput): Promise<void> {
+    async cancel(input: UpdateReservationInput): Promise<void> {
     }
 }

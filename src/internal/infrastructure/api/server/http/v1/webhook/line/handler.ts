@@ -1,5 +1,6 @@
+import { RESERVATION_STATUS } from "@/internal/domain/reservation";
 import { AppConfig } from "@/internal/infrastructure/config/app";
-import { CancelReservationInput, CreateReservationInput, GetReservationByUserIdInput, ReservationUsecase } from "@/internal/usecase/reservation";
+import { UpdateReservationInput, CreateReservationInput, GetReservationByLineUserIdInput, ReservationUsecase } from "@/internal/usecase/reservation";
 import { messagingApi, validateSignature, WebhookRequestBody } from "@line/bot-sdk";
 import { Context, TypedResponse } from "hono";
 import { match } from "ts-pattern";
@@ -34,31 +35,30 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
 
     await Promise.all(
       body.events.map(async(e)=>{
-        await match(e)
-        .with({type: "message", message: {type: "text", text: "予約作成"}}, async(e)=>{
-          const userId = e.source.userId
-          if(userId === undefined){
-            return
-          }
+        const userId = e.source.userId
+        if(userId === undefined){
+          return
+        }
 
-          await this.reservationUsecase.create(new CreateReservationInput(userId))
-
+        switch(e.type) {
+          case "message":
+            switch(e.message.type){
+              case "text":
+                try {
+                  switch(e.message.text) {
+                    case "予約作成":
+                      await this.reservationUsecase.create(new CreateReservationInput(userId))
           await client.replyMessage({
             replyToken: e.replyToken,
             messages: [{
               type: "text",
               text: "予約を作成しました。"
-            }]
-          })
-        })
-        .with({type: "message", message: {type: "text", text: "予約情報"}}, async(e)=>{
-          const userId = e.source.userId
-          if(userId === undefined){
-            return
-          }
+                        }]
+                      })
 
-          await this.reservationUsecase.getByLineUserId(new GetReservationByUserIdInput(userId))
-
+                      return
+                    case "予約情報":
+                      await this.reservationUsecase.getByLineUserId(new GetReservationByLineUserIdInput(userId))
           await client.replyMessage({
             replyToken: e.replyToken,
             messages: [{
@@ -66,15 +66,11 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
               text: "予約情報を表示する"
             }]
           })
-        })
-        .with({type: "message", message: {type: "text", text: "予約キャンセル"}}, async(e)=>{
-          const userId = e.source.userId
-          if(userId === undefined){
-            return
-          }
 
-          await this.reservationUsecase.cancel(new CancelReservationInput(userId))
-
+                      return
+                    case "予約キャンセル":
+                      const reservation = await this.reservationUsecase.getByLineUserId(new GetReservationByLineUserIdInput(userId))
+          await this.reservationUsecase.update(new UpdateReservationInput(reservation.id, RESERVATION_STATUS.COMPLETED))
           await client.replyMessage({
             replyToken: e.replyToken,
             messages: [{
@@ -82,8 +78,29 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
               text: "予約をキャンセルしました。"
             }]
           })
-        })
-        .otherwise(()=>{})
+
+                      return
+                    default:
+                      return
+                  }
+                } catch (error) {
+                  console.log(error)
+                  await client.replyMessage({
+                    replyToken: e.replyToken,
+                    messages: [{
+                      type: "text",
+                      text: "エラーが発生しました。"
+                    }]
+                  })
+                }
+
+                return
+              default:
+                return
+            }
+          default:
+            return
+        }
       })
     )
 
