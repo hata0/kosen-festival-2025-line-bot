@@ -1,4 +1,4 @@
-import { ErrorCode } from "../error";
+import type { ErrorCode } from "../error";
 
 export const RESERVATION_ERROR_CODE = {
   VALIDATION_ERROR: Symbol("VALIDATION_ERROR") as ErrorCode,

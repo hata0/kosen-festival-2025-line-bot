@@ -1,3 +1,2 @@
-export * from "./config"
-export * from "./env-config"
-export * from "./mock-config"
+export * from "./config";
+export * from "./env-config";

@@ -1,7 +1,7 @@
-import { ServerApiConfig } from "../api/server";
-import { SpreadsheetApiConfig } from "../api/spreadsheet";
+import type { ServerApiConfig } from "../api/server";
+import type { SpreadsheetApiConfig } from "../api/spreadsheet";
 
 export interface AppConfig {
-    serverApi: ServerApiConfig 
-    spreadsheetApi: SpreadsheetApiConfig
+  serverApi: ServerApiConfig;
+  spreadsheetApi: SpreadsheetApiConfig;
 }

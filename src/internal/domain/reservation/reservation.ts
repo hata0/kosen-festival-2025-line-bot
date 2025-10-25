@@ -1,5 +1,5 @@
-import { ReservationId } from "./id";
-import { ReservationStatus } from "./reservation-status";
+import type { ReservationId } from "./id";
+import type { ReservationStatus } from "./reservation-status";
 
 export class Reservation {
   constructor(
@@ -8,8 +8,7 @@ export class Reservation {
     public readonly confirmationCode: string,
     public readonly status: ReservationStatus,
     public readonly createdAt: Date,
-  ) {
-  }
+  ) {}
 
   update(status: ReservationStatus): Reservation {
     return new Reservation(
@@ -17,8 +16,8 @@ export class Reservation {
       this.lineUserId,
       this.confirmationCode,
       this.status.transitionTo(status),
-      this.createdAt
-    )
+      this.createdAt,
+    );
   }
 
   equals(other: Reservation): boolean {

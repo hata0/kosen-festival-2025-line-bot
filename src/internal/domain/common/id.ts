@@ -1,3 +1,3 @@
 export interface Id {
-    generate(): string;
+  generate(): string;
 }

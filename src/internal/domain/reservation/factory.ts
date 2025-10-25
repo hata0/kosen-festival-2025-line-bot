@@ -1,5 +1,5 @@
-import { Reservation } from "./reservation";
+import type { Reservation } from "./reservation";
 
 export interface ReservationFactory {
-    create(lineUserId: string): Reservation
+  create(lineUserId: string): Reservation;
 }

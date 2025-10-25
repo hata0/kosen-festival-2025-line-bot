@@ -1,7 +1,7 @@
-import { Time } from "@/internal/domain/common";
+import type { Time } from "@/internal/domain/common";
 
 export class TimeImpl implements Time {
-    now(): Date {
-        return new Date()
-    }
+  now(): Date {
+    return new Date();
+  }
 }

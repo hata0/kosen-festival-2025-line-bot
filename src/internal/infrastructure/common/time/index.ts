@@ -1,1 +1,1 @@
-export * from "./time-impl"
+export * from "./time-impl";

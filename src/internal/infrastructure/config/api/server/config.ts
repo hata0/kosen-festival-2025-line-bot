@@ -1,4 +1,4 @@
 export interface ServerApiConfig {
-  lineChannelAccessToken: string
-  lineChannelSecret: string
+  lineChannelAccessToken: string;
+  lineChannelSecret: string;
 }

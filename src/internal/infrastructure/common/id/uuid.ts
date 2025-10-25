@@ -1,8 +1,8 @@
-import { Id } from "@/internal/domain/common";
-import {randomUUID} from "crypto"
+import { randomUUID } from "node:crypto";
+import type { Id } from "@/internal/domain/common";
 
 export class Uuid implements Id {
-    generate(): string {
-        return randomUUID()
-    }
+  generate(): string {
+    return randomUUID();
+  }
 }

@@ -1,4 +1,4 @@
-import { ErrorCode } from "./code";
+import type { ErrorCode } from "./code";
 
 export class AppError extends Error {
   public readonly code: ErrorCode;
@@ -12,6 +12,9 @@ export class AppError extends Error {
   }
 }
 
-export const isAppErrorWithCode = (error: unknown, code: ErrorCode): boolean => {
+export const isAppErrorWithCode = (
+  error: unknown,
+  code: ErrorCode,
+): boolean => {
   return error instanceof AppError && error.code === code;
 };

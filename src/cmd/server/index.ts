@@ -8,10 +8,10 @@ const newServer = () => {
     return c.text("Hello Hono!");
   });
 
-  const container = new AppContainer()
-  const serverApi = container.serverApi
+  const container = new AppContainer();
+  const serverApi = container.serverApi;
 
-  app.post("/api/v1/webhook/line", (c)=>serverApi.lineWebhookHandler.post(c))
+  app.post("/api/v1/webhook/line", (c) => serverApi.lineWebhookHandler.post(c));
 
   return app satisfies Hono;
 };

@@ -1,1 +1,1 @@
-export type Branded<T, B> = T & { readonly _brand: B }
+export type Branded<T, B> = T & { readonly _brand: B };

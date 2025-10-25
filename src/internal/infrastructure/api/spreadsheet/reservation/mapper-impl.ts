@@ -1,17 +1,24 @@
-import { Reservation, ReservationId, ReservationStatus, ReservationStatusType } from "@/internal/domain/reservation";
-import { SpreadsheetApiReservationMapper } from "./mapper";
-import { format } from "date-fns";
 import { tz } from "@date-fns/tz";
+import { format } from "date-fns";
+import {
+  Reservation,
+  ReservationId,
+  ReservationStatus,
+  type ReservationStatusType,
+} from "@/internal/domain/reservation";
+import type { SpreadsheetApiReservationMapper } from "./mapper";
 
-export class SpreadsheetApiReservationMapperImpl implements SpreadsheetApiReservationMapper {
-    toEntity(model: string[]): Reservation {
-        const [
+export class SpreadsheetApiReservationMapperImpl
+  implements SpreadsheetApiReservationMapper
+{
+  toEntity(model: string[]): Reservation {
+    const [
       id,
       lineUserId,
       confirmationCode,
       status,
       _createdAtDisplay,
-      createdAtIso
+      createdAtIso,
     ] = model;
 
     return new Reservation(
@@ -19,18 +26,20 @@ export class SpreadsheetApiReservationMapperImpl implements SpreadsheetApiReserv
       lineUserId,
       confirmationCode,
       new ReservationStatus(status as ReservationStatusType),
-      new Date(createdAtIso)
+      new Date(createdAtIso),
     );
-    }
+  }
 
-    toModel(entity: Reservation): string[] {
-        return [
+  toModel(entity: Reservation): string[] {
+    return [
       entity.id.toString(),
       entity.lineUserId,
       entity.confirmationCode,
       entity.status.value,
-      format(entity.createdAt, "yyyy/MM/dd HH:mm:ss.SSS", { in: tz("Asia/Tokyo") }),
-      entity.createdAt.toISOString()
+      format(entity.createdAt, "yyyy/MM/dd HH:mm:ss.SSS", {
+        in: tz("Asia/Tokyo"),
+      }),
+      entity.createdAt.toISOString(),
     ];
-    }
+  }
 }

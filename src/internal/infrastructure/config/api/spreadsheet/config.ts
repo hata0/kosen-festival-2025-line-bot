@@ -1,5 +1,5 @@
 export interface SpreadsheetApiConfig {
-    spreadsheetClientEmail: string;
-    spreadsheetPrivateKey: string
-    spreadsheetId: string
+  spreadsheetClientEmail: string;
+  spreadsheetPrivateKey: string;
+  spreadsheetId: string;
 }

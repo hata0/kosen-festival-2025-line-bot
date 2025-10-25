@@ -7,12 +7,18 @@ import { FactoryContainer } from "../factory";
 import { SpreadsheetApiContainer } from "../api/spreadsheet";
 
 export class AppContainer {
-  private readonly common = new CommonContainer()
-  private readonly config = new ConfigContainer()
-  private readonly spreadsheetApi = new SpreadsheetApiContainer()
-  private readonly factory = new FactoryContainer(this.common)
-  private readonly repository = new RepositoryContainer(this.config, this.spreadsheetApi)
-  private readonly usecase = new UsecaseContainer(this.factory, this.repository)
+  private readonly common = new CommonContainer();
+  private readonly config = new ConfigContainer();
+  private readonly spreadsheetApi = new SpreadsheetApiContainer();
+  private readonly factory = new FactoryContainer(this.common);
+  private readonly repository = new RepositoryContainer(
+    this.config,
+    this.spreadsheetApi,
+  );
+  private readonly usecase = new UsecaseContainer(
+    this.factory,
+    this.repository,
+  );
 
-  public readonly serverApi = new ServerApiContainer(this.usecase, this.config)
+  public readonly serverApi = new ServerApiContainer(this.usecase, this.config);
 }
