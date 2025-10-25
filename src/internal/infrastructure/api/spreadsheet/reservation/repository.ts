@@ -9,7 +9,7 @@ import {
 } from "@/internal/domain/reservation";
 import type { AppConfig } from "@/internal/infrastructure/config/app";
 import { isStatusOk } from "@/pkg/spreadsheet-api";
-import { SPREADSHEET_API_ERROR_CODE } from "../shared";
+import { SPREADSHEET_API_ERROR_CODE } from "../shared/error";
 import type { SpreadsheetApiReservationMapper } from "./mapper";
 
 export class SpreadsheetApiReservationRepository
@@ -123,7 +123,7 @@ export class SpreadsheetApiReservationRepository
     // https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets.values/get?hl=ja
     const res = await this.sheets.spreadsheets.values.get({
       spreadsheetId: this.config.spreadsheetApi.spreadsheetId,
-      range: "A:F",
+      range: "A2:F",
     });
 
     if (!isStatusOk(res)) {

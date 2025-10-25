@@ -1,6 +1,6 @@
 import { AppError } from "@/internal/domain/error";
 import { RESERVATION_ERROR_CODE } from "@/internal/domain/reservation";
-import { SPREADSHEET_API_ERROR_CODE } from "../../spreadsheet/shared";
+import { SPREADSHEET_API_ERROR_CODE } from "../../spreadsheet/shared/error";
 
 export const errorToMessage = (error: unknown): string => {
   if (error instanceof AppError) {
