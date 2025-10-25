@@ -11,3 +11,7 @@ export class AppError extends Error {
     this.cause = cause;
   }
 }
+
+export const isAppErrorWithCode = (error: unknown, code: ErrorCode): boolean => {
+  return error instanceof AppError && error.code === code;
+};

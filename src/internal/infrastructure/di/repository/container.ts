@@ -1,11 +1,12 @@
 import { ReservationRepository } from "@/internal/domain/reservation";
-import { SpreadsheetReservationRepository } from "../../api/spreadsheet/reservation";
+import { SpreadsheetApiReservationRepository } from "../../api/spreadsheet/reservation";
 import { ConfigContainer } from "../config";
+import { SpreadsheetApiContainer } from "../api/spreadsheet";
 
 export class RepositoryContainer {
     public readonly reservationRepository: ReservationRepository
 
-    constructor(config: ConfigContainer){
-        this.reservationRepository = new SpreadsheetReservationRepository(config.appConfig)
+    constructor(config: ConfigContainer, spreadsheetApi: SpreadsheetApiContainer){
+        this.reservationRepository = new SpreadsheetApiReservationRepository(config.appConfig, spreadsheetApi.reservationMapper)
     }
 }
