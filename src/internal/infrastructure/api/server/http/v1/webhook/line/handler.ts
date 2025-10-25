@@ -4,6 +4,7 @@ import {
   type WebhookRequestBody,
 } from "@line/bot-sdk";
 import type { Context, TypedResponse } from "hono";
+import type { i18n } from "i18next";
 import { RESERVATION_STATUS } from "@/internal/domain/reservation";
 import type { AppConfig } from "@/internal/infrastructure/config/app";
 import {
@@ -12,6 +13,7 @@ import {
   type ReservationUsecase,
   UpdateReservationInput,
 } from "@/internal/usecase/reservation";
+import type { ErrorConverter } from "../../../../error";
 
 export interface LineWebhookHandler {
   post(c: Context): Promise<TypedResponse<null>>;
@@ -21,6 +23,8 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
   constructor(
     private readonly reservationUsecase: ReservationUsecase,
     private readonly config: AppConfig,
+    private readonly translator: i18n,
+    private readonly errorConverter: ErrorConverter,
   ) {}
 
   async post(c: Context) {
@@ -53,27 +57,12 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
         }
 
         switch (e.type) {
-          case "message":
+          case "message": {
             switch (e.message.type) {
-              case "text":
+              case "text": {
                 try {
                   switch (e.message.text) {
-                    case "予約作成":
-                      await this.reservationUsecase.create(
-                        new CreateReservationInput(userId),
-                      );
-                      await client.replyMessage({
-                        replyToken: e.replyToken,
-                        messages: [
-                          {
-                            type: "text",
-                            text: "予約を作成しました。",
-                          },
-                        ],
-                      });
-
-                      return;
-                    case "予約情報":
+                    case "予約情報": {
                       await this.reservationUsecase.getByLineUserId(
                         new GetReservationByLineUserIdInput(userId),
                       );
@@ -82,12 +71,33 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                         messages: [
                           {
                             type: "text",
-                            text: "予約情報を表示する",
+                            text: this.translator.t(
+                              "reservations.get_detail.message",
+                            ),
                           },
                         ],
                       });
 
                       return;
+                    }
+                    case "予約作成": {
+                      await this.reservationUsecase.create(
+                        new CreateReservationInput(userId),
+                      );
+                      await client.replyMessage({
+                        replyToken: e.replyToken,
+                        messages: [
+                          {
+                            type: "text",
+                            text: this.translator.t(
+                              "reservations.create.message",
+                            ),
+                          },
+                        ],
+                      });
+
+                      return;
+                    }
                     case "予約キャンセル": {
                       const reservation =
                         await this.reservationUsecase.getByLineUserId(
@@ -104,35 +114,41 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                         messages: [
                           {
                             type: "text",
-                            text: "予約をキャンセルしました。",
+                            text: this.translator.t(
+                              "reservations.cancel.message",
+                            ),
                           },
                         ],
                       });
 
                       return;
                     }
-                    default:
+                    default: {
                       return;
+                    }
                   }
                 } catch (error) {
-                  console.log(error);
                   await client.replyMessage({
                     replyToken: e.replyToken,
                     messages: [
                       {
                         type: "text",
-                        text: "エラーが発生しました。",
+                        text: this.errorConverter.toMessage(error),
                       },
                     ],
                   });
                 }
 
                 return;
-              default:
+              }
+              default: {
                 return;
+              }
             }
-          default:
+          }
+          default: {
             return;
+          }
         }
       }),
     );

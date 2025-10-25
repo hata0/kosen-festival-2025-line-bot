@@ -1,0 +1,24 @@
+{
+  "reservations": {
+    "get_detail": {
+      "message": "予約情報を表示する。"
+    },
+    "create": {
+      "message": "予約を作成しました。"
+    },
+    "cancel": {
+      "message": "予約をキャンセルしました。"
+    }
+  },
+  "error": {
+    "reservation": {
+      "validation_error": "エラーが発生しました。やり直してください。",
+      "duplicate": "予約は既に存在します。",
+      "not_found": "予約が見つかりませんでした。"
+    },
+    "spreadsheet_api": {
+      "request_failed": "エラーが発生しました。やり直してください。"
+    },
+    "unknown": "エラーが発生しました。やり直してください。"
+  }
+}

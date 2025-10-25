@@ -1,10 +1,11 @@
-import { ConfigContainer } from "../config";
+import type { i18n } from "i18next";
 import { ServerApiContainer } from "../api/server";
-import { UsecaseContainer } from "../usecase";
-import { RepositoryContainer } from "../repository";
-import { CommonContainer } from "../common";
-import { FactoryContainer } from "../factory";
 import { SpreadsheetApiContainer } from "../api/spreadsheet";
+import { CommonContainer } from "../common";
+import { ConfigContainer } from "../config";
+import { FactoryContainer } from "../factory";
+import { RepositoryContainer } from "../repository";
+import { UsecaseContainer } from "../usecase";
 
 export class AppContainer {
   private readonly common = new CommonContainer();
@@ -20,5 +21,13 @@ export class AppContainer {
     this.repository,
   );
 
-  public readonly serverApi = new ServerApiContainer(this.usecase, this.config);
+  public readonly serverApi: ServerApiContainer;
+
+  constructor(translator: i18n) {
+    this.serverApi = new ServerApiContainer(
+      this.usecase,
+      this.config,
+      translator,
+    );
+  }
 }
