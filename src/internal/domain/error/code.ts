@@ -1,3 +1,3 @@
-import type { Branded } from "@/internal/core/branded";
+import type { Branded } from "@/pkg/branded";
 
 export type ErrorCode = Branded<symbol, "ErrorCode">;
