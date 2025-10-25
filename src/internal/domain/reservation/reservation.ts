@@ -11,7 +11,17 @@ export class Reservation {
   ) {
   }
 
-  public equals(other: Reservation): boolean {
+  update(status: ReservationStatus): Reservation {
+    return new Reservation(
+      this.id,
+      this.lineUserId,
+      this.confirmationCode,
+      this.status.transitionTo(status),
+      this.createdAt
+    )
+  }
+
+  equals(other: Reservation): boolean {
     return this.id.equals(other.id);
   }
 }

@@ -1,19 +1,32 @@
-import { ReservationFactory, ReservationRepository } from "@/internal/domain/reservation";
+import { ReservationFactory, ReservationId, ReservationRepository, ReservationStatus } from "@/internal/domain/reservation";
 import { ReservationUsecase } from "./reservation";
-import { GetReservationOutput } from "./output";
-import { CancelReservationInput, CreateReservationInput, GetReservationByUserIdInput } from "./input";
+import { GetReservationOutput, GetUncompletedCountOutput } from "./output";
+import { CancelReservationInput, CreateReservationInput, GetReservationByUserIdInput, GetUncompletedCountInput } from "./input";
 
 export class ReservationUsecaseImpl implements ReservationUsecase {
   constructor(
     private readonly reservationFactory: ReservationFactory,
-    private readonly reservationRepository: ReservationRepository
+    private readonly reservationRepository: ReservationRepository,
   ) {}
   
-  getByUserId(input: GetReservationByUserIdInput): Promise<GetReservationOutput> {
-    throw new Error("Method not implemented.");
+  async getByLineUserId(input: GetReservationByUserIdInput): Promise<GetReservationOutput> {
+    const reservation = await this.reservationRepository.getByLineUserId(input.lineUserId)
+
+    return new GetReservationOutput(
+      reservation.id.toString(),
+      reservation.lineUserId,
+      reservation.confirmationCode,
+      reservation.status.value,
+      reservation.createdAt
+    )
   }
 
-  public async create(
+  async getUncompletedCount(input: GetUncompletedCountInput): Promise<GetUncompletedCountOutput> {
+    const count = await this.reservationRepository.countUncompleted(input.createdBefore)
+    return new GetUncompletedCountOutput(count)
+  }
+
+  async create(
     input: CreateReservationInput
   ): Promise<void> {
     const reservation = this.reservationFactory.create(input.lineUserId)
@@ -21,7 +34,11 @@ export class ReservationUsecaseImpl implements ReservationUsecase {
     await this.reservationRepository.create(reservation);
   }
 
-  cancel(input: CancelReservationInput): Promise<void> {
-    throw new Error("Method not implemented.");
+  async update(input: CancelReservationInput): Promise<void> {
+    const reservation = await this.reservationRepository.getById(new ReservationId(input.id))
+
+    const updatedReservation = reservation.update(new ReservationStatus(input.status))
+
+    await this.reservationRepository.update(updatedReservation)
   }
 }

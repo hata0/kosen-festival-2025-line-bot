@@ -1,6 +1,6 @@
 import { AppConfig } from "@/internal/infrastructure/config/app";
 import { CancelReservationInput, CreateReservationInput, GetReservationByUserIdInput, ReservationUsecase } from "@/internal/usecase/reservation";
-import { messagingApi, validateSignature, WebhookEvent, WebhookRequestBody } from "@line/bot-sdk";
+import { messagingApi, validateSignature, WebhookRequestBody } from "@line/bot-sdk";
 import { Context, TypedResponse } from "hono";
 import { match } from "ts-pattern";
 
@@ -57,7 +57,7 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
             return
           }
 
-          await this.reservationUsecase.getByUserId(new GetReservationByUserIdInput(userId))
+          await this.reservationUsecase.getByLineUserId(new GetReservationByUserIdInput(userId))
 
           await client.replyMessage({
             replyToken: e.replyToken,

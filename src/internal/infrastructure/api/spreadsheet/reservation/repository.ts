@@ -1,4 +1,4 @@
-import { Reservation, RESERVATION_ERROR_CODE, ReservationRepository } from "@/internal/domain/reservation";
+import { Reservation, RESERVATION_ERROR_CODE, RESERVATION_STATUS, ReservationId, ReservationRepository } from "@/internal/domain/reservation";
 import { AppConfig } from "@/internal/infrastructure/config/app";
 import { google} from "googleapis"
 import { AppError, isAppErrorWithCode } from "@/internal/domain/error";
@@ -22,6 +22,15 @@ export class SpreadsheetApiReservationRepository implements ReservationRepositor
     this.sheets = google.sheets({ version: 'v4', auth });
   }
 
+  async getById(id: ReservationId): Promise<Reservation> {
+    const all = await this.getAll();
+    const found = all.find(r => r.id.equals(id));
+    if (!found) {
+      throw new AppError(RESERVATION_ERROR_CODE.NOT_FOUND);
+    }
+    return found;
+  }
+
   async getByLineUserId(lineUserId: string): Promise<Reservation> {
     const all = await this.getAll();
     const found = all.find(r => r.lineUserId === lineUserId);
@@ -29,6 +38,25 @@ export class SpreadsheetApiReservationRepository implements ReservationRepositor
       throw new AppError(RESERVATION_ERROR_CODE.NOT_FOUND);
     }
     return found;
+  }
+
+  async countUncompleted(createdBefore?: Date): Promise<number> {
+    const all = await this.getAll();
+
+  const count = all.filter(r => {
+    // 未完了のみ対象
+    const isUncompleted = r.status.value === RESERVATION_STATUS.UNCOMPLETED;
+
+    // date が指定されていない場合は、未完了の全件を数える
+    if (!createdBefore) {
+      return isUncompleted;
+    }
+
+    // createdAt が date より前のものを対象
+    return isUncompleted && r.createdAt < createdBefore;
+  }).length;
+
+  return count;
   }
 
   async create(reservation: Reservation): Promise<void> {
