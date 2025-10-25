@@ -3,7 +3,6 @@ import { AppConfig } from "@/internal/infrastructure/config/app";
 import { UpdateReservationInput, CreateReservationInput, GetReservationByLineUserIdInput, ReservationUsecase } from "@/internal/usecase/reservation";
 import { messagingApi, validateSignature, WebhookRequestBody } from "@line/bot-sdk";
 import { Context, TypedResponse } from "hono";
-import { match } from "ts-pattern";
 
 export interface LineWebhookHandler {
   post(c: Context): Promise<TypedResponse<null>>

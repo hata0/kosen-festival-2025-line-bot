@@ -11,8 +11,7 @@
     "@line/bot-sdk": "^10.3.0",
     "date-fns": "^4.1.0",
     "googleapis": "^164.1.0",
-    "hono": "^4.9.9",
-    "ts-pattern": "^5.8.0"
+    "hono": "^4.9.9"
   },
   "devDependencies": {
     "wrangler": "^4.4.0"
