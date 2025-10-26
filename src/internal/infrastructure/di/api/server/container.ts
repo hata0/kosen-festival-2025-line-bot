@@ -2,6 +2,8 @@ import type { i18n } from "i18next";
 import {
   type ErrorConverter,
   ErrorConverterImpl,
+  type ErrorHandler,
+  ErrorHandlerImpl,
 } from "@/internal/infrastructure/api/server/error";
 import {
   type LineWebhookHandler,
@@ -12,6 +14,7 @@ import type { UsecaseContainer } from "../../usecase";
 
 export class ServerApiContainer {
   public readonly errorConverter: ErrorConverter;
+  public readonly errorHandler: ErrorHandler = new ErrorHandlerImpl();
   public readonly lineWebhookHandler: LineWebhookHandler;
 
   constructor(
