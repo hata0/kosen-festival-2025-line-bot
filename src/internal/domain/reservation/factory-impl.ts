@@ -2,7 +2,6 @@ import type { Id, Randomizer, Time } from "../common";
 import type { ReservationFactory } from "./factory";
 import { ReservationId } from "./id";
 import { Reservation } from "./reservation";
-import { RESERVATION_STATUS, ReservationStatus } from "./reservation-status";
 
 export class ReservationFactoryImpl implements ReservationFactory {
   constructor(
@@ -19,12 +18,6 @@ export class ReservationFactoryImpl implements ReservationFactory {
       .padStart(4, "0");
     const now = this.time.now();
 
-    return new Reservation(
-      reservationId,
-      lineUserId,
-      confirmationCode,
-      new ReservationStatus(RESERVATION_STATUS.UNCOMPLETED),
-      now,
-    );
+    return new Reservation(reservationId, lineUserId, confirmationCode, now);
   }
 }

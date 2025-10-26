@@ -5,13 +5,12 @@ import {
 } from "@line/bot-sdk";
 import type { Context, TypedResponse } from "hono";
 import type { i18n } from "i18next";
-import { RESERVATION_STATUS } from "@/internal/domain/reservation";
 import type { AppConfig } from "@/internal/infrastructure/config/app";
 import {
   CreateReservationInput,
+  DeleteReservationInput,
   GetReservationByLineUserIdInput,
   type ReservationUsecase,
-  UpdateReservationInput,
 } from "@/internal/usecase/reservation";
 import type { ErrorConverter } from "../../../../error";
 
@@ -108,11 +107,8 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                             await this.reservationUsecase.getByLineUserId(
                               new GetReservationByLineUserIdInput(userId),
                             );
-                          await this.reservationUsecase.update(
-                            new UpdateReservationInput(
-                              reservation.id,
-                              RESERVATION_STATUS.COMPLETED,
-                            ),
+                          await this.reservationUsecase.delete(
+                            new DeleteReservationInput(reservation.id),
                           );
                           await this.client.pushMessage({
                             to: userId,
@@ -143,6 +139,8 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                 }
               }
             } catch (error) {
+              console.error(error);
+
               await this.client.pushMessage({
                 to: userId,
                 messages: [

@@ -3,11 +3,10 @@ export class GetReservationOutput {
     public readonly id: string,
     public readonly lineUserId: string,
     public readonly confirmationCode: string,
-    public readonly status: string,
     public readonly createdAt: Date,
   ) {}
 }
 
-export class GetReservationUncompletedCountOutput {
+export class GetReservationCountOutput {
   constructor(public readonly count: number) {}
 }

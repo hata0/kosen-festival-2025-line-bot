@@ -1,14 +1,12 @@
 import { google } from "googleapis";
-import { AppError, isAppErrorWithCode } from "@/internal/domain/error";
+import { AppError } from "@/internal/domain/error";
 import {
   RESERVATION_ERROR_CODE,
-  RESERVATION_STATUS,
   type Reservation,
   type ReservationId,
   type ReservationRepository,
 } from "@/internal/domain/reservation";
 import type { AppConfig } from "@/internal/infrastructure/config/app";
-import { SPREADSHEET_API_ERROR_CODE } from "../shared/error";
 import type { SpreadsheetApiReservationMapper } from "./mapper";
 
 export class SpreadsheetApiReservationRepository
@@ -47,36 +45,23 @@ export class SpreadsheetApiReservationRepository
     return found;
   }
 
-  async countUncompleted(createdBefore?: Date): Promise<number> {
+  async count(createdBefore?: Date): Promise<number> {
     const all = await this.getAll();
 
     const count = all.filter((r) => {
-      // 未完了のみ対象
-      const isUncompleted = r.status.value === RESERVATION_STATUS.UNCOMPLETED;
-
-      // date が指定されていない場合は、未完了の全件を数える
+      // createdBeforeが指定されていない場合は、全件を数える
       if (!createdBefore) {
-        return isUncompleted;
+        return true;
       }
 
-      // createdAt が date より前のものを対象
-      return isUncompleted && r.createdAt < createdBefore;
+      // createdAtがcreatedBeforeより前のものを数える
+      return r.createdAt < createdBefore;
     }).length;
 
     return count;
   }
 
   async create(reservation: Reservation): Promise<void> {
-    // lineUserIdのユニーク制約チェック
-    try {
-      await this.getByLineUserId(reservation.lineUserId);
-      throw new AppError(RESERVATION_ERROR_CODE.DUPLICATE);
-    } catch (error) {
-      if (!isAppErrorWithCode(error, RESERVATION_ERROR_CODE.NOT_FOUND)) {
-        throw error;
-      }
-    }
-
     // リファレンス
     // https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets.values/append?hl=ja
     await this.sheets.spreadsheets.values.append({
@@ -109,6 +94,34 @@ export class SpreadsheetApiReservationRepository
     });
   }
 
+  async delete(id: ReservationId): Promise<void> {
+    const all = await this.getAll();
+
+    const rowIndex = all.findIndex((r) => r.id.equals(id));
+    if (rowIndex === -1) {
+      throw new AppError(RESERVATION_ERROR_CODE.NOT_FOUND);
+    }
+
+    // リファレンス
+    // https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets/request?hl=ja#deletedimensionrequest
+    await this.sheets.spreadsheets.batchUpdate({
+      spreadsheetId: this.config.spreadsheetApi.spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            deleteDimension: {
+              range: {
+                dimension: "ROWS",
+                startIndex: rowIndex + 1,
+                endIndex: rowIndex + 2,
+              },
+            },
+          },
+        ],
+      },
+    });
+  }
+
   private async getAll(): Promise<Reservation[]> {
     // リファレンス
     // https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets.values/get?hl=ja
@@ -117,10 +130,7 @@ export class SpreadsheetApiReservationRepository
       range: "A2:F",
     });
 
-    const models = res.data.values;
-    if (!models) {
-      throw new AppError(SPREADSHEET_API_ERROR_CODE.REQUEST_FAILED);
-    }
+    const models = res.data.values ?? [];
 
     const reservations: Reservation[] = models.map((model) => {
       return this.mapper.toEntity(model);

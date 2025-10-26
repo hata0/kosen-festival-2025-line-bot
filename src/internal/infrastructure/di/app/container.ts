@@ -5,6 +5,7 @@ import { CommonContainer } from "../common";
 import { ConfigContainer } from "../config";
 import { FactoryContainer } from "../factory";
 import { RepositoryContainer } from "../repository";
+import { ServiceContainer } from "../service";
 import { UsecaseContainer } from "../usecase";
 
 export class AppContainer {
@@ -16,9 +17,11 @@ export class AppContainer {
     this.config,
     this.spreadsheetApi,
   );
+  private readonly service = new ServiceContainer(this.repository);
   private readonly usecase = new UsecaseContainer(
     this.factory,
     this.repository,
+    this.service,
   );
 
   public readonly serverApi: ServerApiContainer;

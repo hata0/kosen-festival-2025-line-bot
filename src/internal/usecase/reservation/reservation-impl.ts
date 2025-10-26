@@ -1,25 +1,26 @@
+import { AppError } from "@/internal/domain/error";
 import {
+  RESERVATION_ERROR_CODE,
   type ReservationFactory,
   ReservationId,
   type ReservationRepository,
-  ReservationStatus,
+  type ReservationService,
 } from "@/internal/domain/reservation";
 import type {
   CreateReservationInput,
+  DeleteReservationInput,
   GetReservationByLineUserIdInput,
-  GetReservationUncompletedCountInput,
+  GetReservationCountInput,
   UpdateReservationInput,
 } from "./input";
-import {
-  GetReservationOutput,
-  GetReservationUncompletedCountOutput,
-} from "./output";
+import { GetReservationCountOutput, GetReservationOutput } from "./output";
 import type { ReservationUsecase } from "./reservation";
 
 export class ReservationUsecaseImpl implements ReservationUsecase {
   constructor(
     private readonly reservationFactory: ReservationFactory,
     private readonly reservationRepository: ReservationRepository,
+    private readonly reservationService: ReservationService,
   ) {}
 
   async getByLineUserId(
@@ -33,22 +34,25 @@ export class ReservationUsecaseImpl implements ReservationUsecase {
       reservation.id.toString(),
       reservation.lineUserId,
       reservation.confirmationCode,
-      reservation.status.value,
       reservation.createdAt,
     );
   }
 
-  async getUncompletedCount(
-    input: GetReservationUncompletedCountInput,
-  ): Promise<GetReservationUncompletedCountOutput> {
-    const count = await this.reservationRepository.countUncompleted(
-      input.createdBefore,
-    );
-    return new GetReservationUncompletedCountOutput(count);
+  async getCount(
+    input: GetReservationCountInput,
+  ): Promise<GetReservationCountOutput> {
+    const count = await this.reservationRepository.count(input.createdBefore);
+    return new GetReservationCountOutput(count);
   }
 
   async create(input: CreateReservationInput): Promise<void> {
     const reservation = this.reservationFactory.create(input.lineUserId);
+
+    const isExists = await this.reservationService.isExists(reservation);
+
+    if (isExists) {
+      throw new AppError(RESERVATION_ERROR_CODE.DUPLICATE);
+    }
 
     await this.reservationRepository.create(reservation);
   }
@@ -58,10 +62,10 @@ export class ReservationUsecaseImpl implements ReservationUsecase {
       new ReservationId(input.id),
     );
 
-    const updatedReservation = reservation.update(
-      new ReservationStatus(input.status),
-    );
+    await this.reservationRepository.update(reservation);
+  }
 
-    await this.reservationRepository.update(updatedReservation);
+  async delete(input: DeleteReservationInput): Promise<void> {
+    await this.reservationRepository.delete(new ReservationId(input.id));
   }
 }

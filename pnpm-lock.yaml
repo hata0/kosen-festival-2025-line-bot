@@ -25,11 +25,14 @@ importers:
         version: 4.9.9
       i18next:
         specifier: ^25.6.0
-        version: 25.6.0
+        version: 25.6.0(typescript@5.9.3)
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.3.0
         version: 2.3.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
       wrangler:
         specifier: ^4.4.0
         version: 4.40.3
@@ -775,6 +778,11 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   ufo@1.6.1:
     resolution: {integrity: sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA==}
 
@@ -1351,9 +1359,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  i18next@25.6.0:
+  i18next@25.6.0(typescript@5.9.3):
     dependencies:
       '@babel/runtime': 7.28.4
+    optionalDependencies:
+      typescript: 5.9.3
 
   is-arrayish@0.3.4: {}
 
@@ -1497,6 +1507,8 @@ snapshots:
 
   tslib@2.8.1:
     optional: true
+
+  typescript@5.9.3: {}
 
   ufo@1.6.1: {}
 
