@@ -61,11 +61,11 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
               return;
             }
 
-            switch (e.type) {
-              case "message": {
-                switch (e.message.type) {
-                  case "text": {
-                    try {
+            try {
+              switch (e.type) {
+                case "message": {
+                  switch (e.message.type) {
+                    case "text": {
                       switch (e.message.text) {
                         case "予約情報": {
                           await this.reservationUsecase.getByLineUserId(
@@ -132,28 +132,26 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                           return;
                         }
                       }
-                    } catch (error) {
-                      await this.client.pushMessage({
-                        to: userId,
-                        messages: [
-                          {
-                            type: "text",
-                            text: this.errorConverter.toMessage(error),
-                          },
-                        ],
-                      });
                     }
-
-                    return;
-                  }
-                  default: {
-                    return;
+                    default: {
+                      return;
+                    }
                   }
                 }
+                default: {
+                  return;
+                }
               }
-              default: {
-                return;
-              }
+            } catch (error) {
+              await this.client.pushMessage({
+                to: userId,
+                messages: [
+                  {
+                    type: "text",
+                    text: this.errorConverter.toMessage(error),
+                  },
+                ],
+              });
             }
           }),
         );
