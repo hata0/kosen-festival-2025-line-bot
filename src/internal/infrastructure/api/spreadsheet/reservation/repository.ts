@@ -8,7 +8,6 @@ import {
   type ReservationRepository,
 } from "@/internal/domain/reservation";
 import type { AppConfig } from "@/internal/infrastructure/config/app";
-import { isStatusOk } from "@/pkg/spreadsheet-api";
 import { SPREADSHEET_API_ERROR_CODE } from "../shared/error";
 import type { SpreadsheetApiReservationMapper } from "./mapper";
 
@@ -80,7 +79,7 @@ export class SpreadsheetApiReservationRepository
 
     // リファレンス
     // https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets.values/append?hl=ja
-    const res = await this.sheets.spreadsheets.values.append({
+    await this.sheets.spreadsheets.values.append({
       spreadsheetId: this.config.spreadsheetApi.spreadsheetId,
       range: "A:F",
       valueInputOption: "RAW",
@@ -88,10 +87,6 @@ export class SpreadsheetApiReservationRepository
         values: [this.mapper.toModel(reservation)],
       },
     });
-
-    if (!isStatusOk(res)) {
-      throw new AppError(SPREADSHEET_API_ERROR_CODE.REQUEST_FAILED);
-    }
   }
 
   async update(reservation: Reservation): Promise<void> {
@@ -104,7 +99,7 @@ export class SpreadsheetApiReservationRepository
 
     // リファレンス
     // https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets.values/update?hl=ja
-    const res = await this.sheets.spreadsheets.values.update({
+    await this.sheets.spreadsheets.values.update({
       spreadsheetId: this.config.spreadsheetApi.spreadsheetId,
       range: `A${rowIndex + 2}:F${rowIndex + 2}`,
       valueInputOption: "RAW",
@@ -112,10 +107,6 @@ export class SpreadsheetApiReservationRepository
         values: [this.mapper.toModel(reservation)],
       },
     });
-
-    if (!isStatusOk(res)) {
-      throw new AppError(SPREADSHEET_API_ERROR_CODE.REQUEST_FAILED);
-    }
   }
 
   private async getAll(): Promise<Reservation[]> {
@@ -125,10 +116,6 @@ export class SpreadsheetApiReservationRepository
       spreadsheetId: this.config.spreadsheetApi.spreadsheetId,
       range: "A2:F",
     });
-
-    if (!isStatusOk(res)) {
-      throw new AppError(SPREADSHEET_API_ERROR_CODE.REQUEST_FAILED);
-    }
 
     const models = res.data.values;
     if (!models) {
