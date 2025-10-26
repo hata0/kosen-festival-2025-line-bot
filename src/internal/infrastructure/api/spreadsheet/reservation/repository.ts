@@ -106,7 +106,7 @@ export class SpreadsheetApiReservationRepository
     // https://developers.google.com/workspace/sheets/api/reference/rest/v4/spreadsheets.values/update?hl=ja
     const res = await this.sheets.spreadsheets.values.update({
       spreadsheetId: this.config.spreadsheetApi.spreadsheetId,
-      range: `A${rowIndex + 1}:F${rowIndex + 1}`,
+      range: `A${rowIndex + 2}:F${rowIndex + 2}`,
       valueInputOption: "RAW",
       requestBody: {
         values: [this.mapper.toModel(reservation)],
