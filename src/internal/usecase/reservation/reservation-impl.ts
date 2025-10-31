@@ -53,7 +53,10 @@ export class ReservationUsecaseImpl implements ReservationUsecase {
     input: GetReservationCountInput,
   ): Promise<GetReservationCountOutput> {
     const count = await this.reservationRepository.getCount(
-      new GetReservationCountQuery(input.createdAtFrom, input.createdAtTo),
+      new GetReservationCountQuery({
+        createdAtFrom: input.createdAtFrom,
+        createdAtTo: input.createdAtTo,
+      }),
     );
     return new GetReservationCountOutput(count);
   }

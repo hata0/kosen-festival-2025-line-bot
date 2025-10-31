@@ -8,6 +8,8 @@ import { addMinutes, format } from "date-fns";
 import type { Context, TypedResponse } from "hono";
 import type { i18n } from "i18next";
 import type { Time } from "@/internal/domain/common";
+import { isAppErrorWithCode } from "@/internal/domain/error";
+import { RESERVATION_ERROR_CODE } from "@/internal/domain/reservation";
 import type { AppConfig } from "@/internal/infrastructure/config/app";
 import {
   CreateReservationInput,
@@ -70,43 +72,82 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                     case "text": {
                       switch (e.message.text) {
                         case "予約情報": {
-                          // TODO: 予約未作成の場合も情報は得られるようにする。
-                          const reservationOutput =
-                            await this.reservationUsecase.getByLineUserId(
-                              userId,
+                          try {
+                            // 予約済みの場合
+                            const reservationOutput =
+                              await this.reservationUsecase.getByLineUserId(
+                                userId,
+                              );
+                            const countOutput =
+                              await this.reservationUsecase.getCount(
+                                new GetReservationCountInput({
+                                  createdAtTo: reservationOutput.createdAt,
+                                }),
+                              );
+                            // TODO: 1組あたりにかかる時間をService Repositoryから得る
+                            const startedAt = addMinutes(
+                              this.time.now(),
+                              (countOutput.count - 1) * 7,
                             );
-                          const countOutput =
-                            await this.reservationUsecase.getCount(
-                              new GetReservationCountInput(
-                                undefined,
-                                reservationOutput.createdAt,
-                              ),
-                            );
-                          // TODO: 1組あたりにかかる時間をService Repositoryから得る
-                          const startedAt = addMinutes(
-                            this.time.now(),
-                            countOutput.count * 7,
-                          );
-                          await this.client.pushMessage({
-                            to: userId,
-                            messages: [
-                              {
-                                type: "text",
-                                text: this.translator.t(
-                                  "reservations.get_detail.message",
-                                  {
-                                    code: reservationOutput.confirmationCode,
-                                    waitingCount: `${countOutput.count}`,
-                                    startedAt: format(startedAt, "HH:mm", {
-                                      in: tz("Asia/Tokyo"),
-                                    }),
-                                  },
-                                ),
-                              },
-                            ],
-                          });
+                            await this.client.pushMessage({
+                              to: userId,
+                              messages: [
+                                {
+                                  type: "text",
+                                  text: this.translator.t(
+                                    "reservations.get_detail.reserved_message",
+                                    {
+                                      code: reservationOutput.confirmationCode,
+                                      waitingCount: `${countOutput.count}`,
+                                      startedAt: format(startedAt, "HH:mm", {
+                                        in: tz("Asia/Tokyo"),
+                                      }),
+                                    },
+                                  ),
+                                },
+                              ],
+                            });
 
-                          return;
+                            return;
+                          } catch (error) {
+                            if (
+                              isAppErrorWithCode(
+                                error,
+                                RESERVATION_ERROR_CODE.NOT_FOUND,
+                              )
+                            ) {
+                              // 未予約の場合
+                              const countOutput =
+                                await this.reservationUsecase.getCount(
+                                  new GetReservationCountInput(),
+                                );
+                              // TODO: 1組あたりにかかる時間をService Repositoryから得る
+                              const startedAt = addMinutes(
+                                this.time.now(),
+                                countOutput.count * 7,
+                              );
+                              await this.client.pushMessage({
+                                to: userId,
+                                messages: [
+                                  {
+                                    type: "text",
+                                    text: this.translator.t(
+                                      "reservations.get_detail.not_reserved_message",
+                                      {
+                                        waitingCount: `${countOutput.count}`,
+                                        startedAt: format(startedAt, "HH:mm", {
+                                          in: tz("Asia/Tokyo"),
+                                        }),
+                                      },
+                                    ),
+                                  },
+                                ],
+                              });
+                              return;
+                            }
+
+                            throw error;
+                          }
                         }
                         case "予約作成": {
                           const createOutput =
@@ -119,15 +160,14 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                             );
                           const countOutput =
                             await this.reservationUsecase.getCount(
-                              new GetReservationCountInput(
-                                undefined,
-                                reservationOutput.createdAt,
-                              ),
+                              new GetReservationCountInput({
+                                createdAtTo: reservationOutput.createdAt,
+                              }),
                             );
                           // TODO: 1組あたりにかかる時間をService Repositoryから得る
                           const startedAt = addMinutes(
                             this.time.now(),
-                            countOutput.count * 7,
+                            (countOutput.count - 1) * 7,
                           );
                           await this.client.pushMessage({
                             to: userId,

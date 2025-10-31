@@ -1,7 +1,15 @@
-// TODO: 値の制限を設ける。GetReservationCountQueryImplにして、インターフェースを用意すべき
+// TODO: 値の制限を設ける。
 export class GetReservationCountQuery {
+  public readonly createdAtFrom?: Date;
+  public readonly createdAtTo?: Date;
+
   constructor(
-    public readonly createdAtFrom?: Date,
-    public readonly createdAtTo?: Date,
-  ) {}
+    params: {
+      createdAtFrom?: Date;
+      createdAtTo?: Date;
+    } = {},
+  ) {
+    this.createdAtFrom = params.createdAtFrom;
+    this.createdAtTo = params.createdAtTo;
+  }
 }

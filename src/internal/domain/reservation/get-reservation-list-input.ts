@@ -1,10 +1,18 @@
 import type { ReservationOrder } from "./reservation-order";
 
-// TODO: limitとpageには値の制限があるので、後で改善する。GetReservationListQueryImplにしてインターフェースを作るべき。
+// TODO: limitとpageには値の制限があるので、後で改善する。
 export class GetReservationListQuery {
-  constructor(
-    public readonly limit: number,
-    public readonly page: number,
-    public readonly order: ReservationOrder,
-  ) {}
+  public readonly limit: number;
+  public readonly page: number;
+  public readonly order: ReservationOrder;
+
+  constructor(params: {
+    limit: number;
+    page: number;
+    order: ReservationOrder;
+  }) {
+    this.limit = params.limit;
+    this.page = params.page;
+    this.order = params.order;
+  }
 }

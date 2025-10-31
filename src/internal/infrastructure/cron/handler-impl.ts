@@ -31,7 +31,11 @@ export class CronHandlerImpl implements CronHandler {
             case "*/5 * * * *": {
               // TODO: limitに任意の値をAppConstantから得られるようにする
               const reservations = await this.reservationRepository.getList(
-                new GetReservationListQuery(5, 1, RESERVATION_ORDER.ASCENDING),
+                new GetReservationListQuery({
+                  limit: 5,
+                  page: 1,
+                  order: RESERVATION_ORDER.ASCENDING,
+                }),
               );
               await Promise.all(
                 reservations.map(async (reservation) => {

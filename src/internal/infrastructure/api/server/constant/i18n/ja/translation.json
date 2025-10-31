@@ -1,7 +1,8 @@
 {
   "reservations": {
     "get_detail": {
-      "message": "以下の内容で予約が登録されています。\nご来場時は、スタッフに確認コードをお伝えください。\n(確認コードは予約を照合するために使用します。)\n\n確認コード\n{{code}}\n予約待ち組数\n{{waitingCount}}組\n目安開始日時\n{{startedAt}}"
+      "reserved_message": "以下の内容で予約が登録されています。\nご来場時は、スタッフに確認コードをお伝えください。\n(確認コードは予約を照合するために使用します。)\n\n確認コード\n{{code}}\n予約待ち組数\n{{waitingCount}}組\n目安開始日時\n{{startedAt}}",
+      "not_reserved_message": "現在の予約状況は以下の通りです。\n\n予約待ち組数\n{{waitingCount}}組\n目安開始日時\n{{startedAt}}"
     },
     "create": {
       "message": "予約を作成しました。\nご来場時にスタッフへ確認コードをお伝えください。\n(確認コードは予約を照合するために使用します。)\n開始日時が近づきましたら、こちらからお知らせします。\n\n確認コード\n{{code}}\n予約待ち組数\n{{waitingCount}}組\n目安開始日時\n{{startedAt}}"
