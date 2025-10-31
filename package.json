@@ -3,8 +3,9 @@
   "type": "module",
   "scripts": {
     "dev": "TZ=UTC wrangler dev --env development",
-    "dev:prod": "TZ=UTC wrangler dev --env production",
+    "dev:prod": "TZ=UTC wrangler dev",
     "deploy": "wrangler deploy --minify --env development",
+    "deploy:prod": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "lint": "biome lint . && tsc --noEmit",
     "fix": "biome format --write ."

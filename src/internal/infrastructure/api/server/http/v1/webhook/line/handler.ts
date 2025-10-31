@@ -65,6 +65,38 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
               return;
             }
 
+            // TODO: リファクタリングする
+            // LINE Botの利用可能期間の制限
+            {
+              const now = this.time.now();
+
+              // 2025/11/1 09:30〜16:30
+              const start1 = new Date("2025-11-01T09:30:00+09:00");
+              const end1 = new Date("2025-11-01T16:30:00+09:00");
+
+              // 2025/11/2 09:30〜14:30
+              const start2 = new Date("2025-11-02T09:30:00+09:00");
+              const end2 = new Date("2025-11-02T14:30:00+09:00");
+
+              if (
+                !(
+                  (now >= start1 && now <= end1) ||
+                  (now >= start2 && now <= end2)
+                )
+              ) {
+                await this.client.pushMessage({
+                  to: userId,
+                  messages: [
+                    {
+                      type: "text",
+                      text: "利用可能期間外のため、利用できません。",
+                    },
+                  ],
+                });
+                return;
+              }
+            }
+
             try {
               switch (e.type) {
                 case "message": {
