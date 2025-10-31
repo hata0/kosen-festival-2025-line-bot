@@ -19,38 +19,44 @@ export class CronHandlerImpl implements CronHandler {
     });
   }
 
+  // TODO: エラーハンドリングが雑なので、改善する
   async cron(
     controller: ScheduledController,
     ctx: ExecutionContext,
   ): Promise<void> {
     ctx.waitUntil(
       (async () => {
-        switch (controller.cron) {
-          case "*/5 * * * *": {
-            // TODO: limitに任意の値をAppConstantから得られるようにする
-            const reservations = await this.reservationRepository.getList(
-              new GetReservationListInput(5, 1, RESERVATION_ORDER.ASCENDING),
-            );
-            await Promise.all(
-              reservations.map(async ({ lineUserId }) => {
-                // TODO: messageをTranslatorから取得する
-                await this.client.pushMessage({
-                  to: lineUserId,
-                  messages: [
-                    {
-                      type: "text",
-                      text: "予約順が近づいてきました。",
-                    },
-                  ],
-                });
-              }),
-            );
+        try {
+          switch (controller.cron) {
+            case "*/5 * * * *": {
+              // TODO: limitに任意の値をAppConstantから得られるようにする
+              const reservations = await this.reservationRepository.getList(
+                new GetReservationListInput(5, 1, RESERVATION_ORDER.ASCENDING),
+              );
+              await Promise.all(
+                reservations.map(async ({ lineUserId }) => {
+                  // TODO: messageをTranslatorから取得する
+                  await this.client.pushMessage({
+                    to: lineUserId,
+                    messages: [
+                      {
+                        type: "text",
+                        text: "予約順が近づいてきました。",
+                      },
+                    ],
+                  });
+                }),
+              );
 
-            return;
+              return;
+            }
+            default: {
+              console.error("CronError:", controller);
+              return;
+            }
           }
-          default: {
-            return;
-          }
+        } catch (error) {
+          console.error("CronError:", error);
         }
       })(),
     );
