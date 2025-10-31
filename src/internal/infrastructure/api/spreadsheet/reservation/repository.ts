@@ -1,7 +1,8 @@
 import { google } from "googleapis";
 import { AppError } from "@/internal/domain/error";
 import {
-  type GetReservationListInput,
+  type GetReservationCountQuery,
+  type GetReservationListQuery,
   RESERVATION_ERROR_CODE,
   RESERVATION_ORDER,
   type Reservation,
@@ -47,7 +48,7 @@ export class SpreadsheetApiReservationRepository
     return found;
   }
 
-  async getList(input: GetReservationListInput): Promise<Reservation[]> {
+  async getList(input: GetReservationListQuery): Promise<Reservation[]> {
     const all = await this.getAll();
 
     // createdAtでソート
@@ -68,17 +69,22 @@ export class SpreadsheetApiReservationRepository
     return paginated;
   }
 
-  async count(createdBefore?: Date): Promise<number> {
+  async getCount(input: GetReservationCountQuery): Promise<number> {
     const all = await this.getAll();
 
     const count = all.filter((r) => {
-      // createdBeforeが指定されていない場合は、全件を数える
-      if (!createdBefore) {
-        return true;
+      if (
+        input.createdAtFrom !== undefined &&
+        r.createdAt < input.createdAtFrom
+      ) {
+        return false;
       }
 
-      // createdAtがcreatedBeforeより前のものを数える
-      return r.createdAt < createdBefore;
+      if (input.createdAtTo !== undefined && r.createdAt > input.createdAtTo) {
+        return false;
+      }
+
+      return true;
     }).length;
 
     return count;

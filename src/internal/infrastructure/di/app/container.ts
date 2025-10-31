@@ -33,6 +33,7 @@ export class AppContainer {
       this.usecase,
       this.config,
       translator,
+      this.common,
     );
   }
 }

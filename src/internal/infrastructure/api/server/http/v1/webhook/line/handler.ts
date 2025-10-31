@@ -1,15 +1,17 @@
+import { tz } from "@date-fns/tz";
 import {
   messagingApi,
   validateSignature,
   type WebhookRequestBody,
 } from "@line/bot-sdk";
+import { addMinutes, format } from "date-fns";
 import type { Context, TypedResponse } from "hono";
 import type { i18n } from "i18next";
+import type { Time } from "@/internal/domain/common";
 import type { AppConfig } from "@/internal/infrastructure/config/app";
 import {
   CreateReservationInput,
-  DeleteReservationInput,
-  GetReservationByLineUserIdInput,
+  GetReservationCountInput,
   type ReservationUsecase,
 } from "@/internal/usecase/reservation";
 import type { ErrorConverter } from "../../../../error";
@@ -26,6 +28,7 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
     private readonly config: AppConfig,
     private readonly translator: i18n,
     private readonly errorConverter: ErrorConverter,
+    private readonly time: Time,
   ) {
     this.client = new messagingApi.MessagingApiClient({
       channelAccessToken: this.config.serverApi.lineChannelAccessToken,
@@ -67,8 +70,22 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                     case "text": {
                       switch (e.message.text) {
                         case "予約情報": {
-                          await this.reservationUsecase.getByLineUserId(
-                            new GetReservationByLineUserIdInput(userId),
+                          // TODO: 予約未作成の場合も情報は得られるようにする。
+                          const reservationOutput =
+                            await this.reservationUsecase.getByLineUserId(
+                              userId,
+                            );
+                          const countOutput =
+                            await this.reservationUsecase.getCount(
+                              new GetReservationCountInput(
+                                undefined,
+                                reservationOutput.createdAt,
+                              ),
+                            );
+                          // TODO: 1組あたりにかかる時間をService Repositoryから得る
+                          const startedAt = addMinutes(
+                            this.time.now(),
+                            countOutput.count * 7,
                           );
                           await this.client.pushMessage({
                             to: userId,
@@ -77,6 +94,13 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                                 type: "text",
                                 text: this.translator.t(
                                   "reservations.get_detail.message",
+                                  {
+                                    code: reservationOutput.confirmationCode,
+                                    waitingCount: `${countOutput.count}`,
+                                    startedAt: format(startedAt, "HH:mm", {
+                                      in: tz("Asia/Tokyo"),
+                                    }),
+                                  },
                                 ),
                               },
                             ],
@@ -85,8 +109,25 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                           return;
                         }
                         case "予約作成": {
-                          await this.reservationUsecase.create(
-                            new CreateReservationInput(userId),
+                          const createOutput =
+                            await this.reservationUsecase.create(
+                              new CreateReservationInput(userId),
+                            );
+                          const reservationOutput =
+                            await this.reservationUsecase.getById(
+                              createOutput.id,
+                            );
+                          const countOutput =
+                            await this.reservationUsecase.getCount(
+                              new GetReservationCountInput(
+                                undefined,
+                                reservationOutput.createdAt,
+                              ),
+                            );
+                          // TODO: 1組あたりにかかる時間をService Repositoryから得る
+                          const startedAt = addMinutes(
+                            this.time.now(),
+                            countOutput.count * 7,
                           );
                           await this.client.pushMessage({
                             to: userId,
@@ -95,6 +136,13 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                                 type: "text",
                                 text: this.translator.t(
                                   "reservations.create.message",
+                                  {
+                                    code: reservationOutput.confirmationCode,
+                                    waitingCount: `${countOutput.count}`,
+                                    startedAt: format(startedAt, "HH:mm", {
+                                      in: tz("Asia/Tokyo"),
+                                    }),
+                                  },
                                 ),
                               },
                             ],
@@ -105,11 +153,9 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                         case "予約キャンセル": {
                           const reservation =
                             await this.reservationUsecase.getByLineUserId(
-                              new GetReservationByLineUserIdInput(userId),
+                              userId,
                             );
-                          await this.reservationUsecase.delete(
-                            new DeleteReservationInput(reservation.id),
-                          );
+                          await this.reservationUsecase.delete(reservation.id);
                           await this.client.pushMessage({
                             to: userId,
                             messages: [

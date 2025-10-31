@@ -1,18 +1,19 @@
 import type {
   CreateReservationInput,
-  DeleteReservationInput,
-  GetReservationByLineUserIdInput,
   GetReservationCountInput,
   UpdateReservationInput,
 } from "./input";
-import type { GetReservationCountOutput, GetReservationOutput } from "./output";
+import type {
+  CreateReservationOutput,
+  GetReservationCountOutput,
+  ReservationOutput,
+} from "./output";
 
 export interface ReservationUsecase {
-  getByLineUserId(
-    input: GetReservationByLineUserIdInput,
-  ): Promise<GetReservationOutput>;
+  getById(id: string): Promise<ReservationOutput>;
+  getByLineUserId(lineUserId: string): Promise<ReservationOutput>;
   getCount(input: GetReservationCountInput): Promise<GetReservationCountOutput>;
-  create(input: CreateReservationInput): Promise<void>;
+  create(input: CreateReservationInput): Promise<CreateReservationOutput>;
   update(input: UpdateReservationInput): Promise<void>;
-  delete(input: DeleteReservationInput): Promise<void>;
+  delete(id: string): Promise<void>;
 }

@@ -9,6 +9,7 @@ import {
   type LineWebhookHandler,
   LineWebhookHandlerImpl,
 } from "../../../api/server/http/v1/webhook/line";
+import type { CommonContainer } from "../../common";
 import type { ConfigContainer } from "../../config";
 import type { UsecaseContainer } from "../../usecase";
 
@@ -21,6 +22,7 @@ export class ServerApiContainer {
     usecase: UsecaseContainer,
     config: ConfigContainer,
     translator: i18n,
+    common: CommonContainer,
   ) {
     this.errorConverter = new ErrorConverterImpl(translator);
     this.lineWebhookHandler = new LineWebhookHandlerImpl(
@@ -28,6 +30,7 @@ export class ServerApiContainer {
       config.appConfig,
       translator,
       this.errorConverter,
+      common.time,
     );
   }
 }

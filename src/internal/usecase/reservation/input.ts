@@ -1,9 +1,8 @@
-export class GetReservationByLineUserIdInput {
-  constructor(public readonly lineUserId: string) {}
-}
-
 export class GetReservationCountInput {
-  constructor(public readonly createdBefore?: Date) {}
+  constructor(
+    public readonly createdAtFrom?: Date,
+    public readonly createdAtTo?: Date,
+  ) {}
 }
 
 export class CreateReservationInput {
@@ -11,9 +10,5 @@ export class CreateReservationInput {
 }
 
 export class UpdateReservationInput {
-  constructor(public readonly id: string) {}
-}
-
-export class DeleteReservationInput {
   constructor(public readonly id: string) {}
 }

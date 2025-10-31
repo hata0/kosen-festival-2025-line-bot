@@ -1,6 +1,7 @@
 export * from "./code";
 export * from "./factory";
 export * from "./factory-impl";
+export * from "./get-reservation-count-query";
 export * from "./get-reservation-list-input";
 export * from "./id";
 export * from "./repository";

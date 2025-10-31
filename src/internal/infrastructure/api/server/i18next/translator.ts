@@ -13,6 +13,7 @@ export const createTranslator = async (): Promise<i18n> => {
     fallbackLng: "ja",
     defaultNS,
     parseMissingKeyHandler: () => "Failed to get text.",
+    missingInterpolationHandler: () => "Failed to get text.",
   });
   await translator.init();
   return translator;
