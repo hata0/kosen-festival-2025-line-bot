@@ -3,6 +3,7 @@ import { ServerApiContainer } from "../api/server";
 import { SpreadsheetApiContainer } from "../api/spreadsheet";
 import { CommonContainer } from "../common";
 import { ConfigContainer } from "../config";
+import { CronContainer } from "../cron";
 import { FactoryContainer } from "../factory";
 import { RepositoryContainer } from "../repository";
 import { ServiceContainer } from "../service";
@@ -25,6 +26,7 @@ export class AppContainer {
   );
 
   public readonly serverApi: ServerApiContainer;
+  public readonly cron = new CronContainer(this.repository, this.config);
 
   constructor(translator: i18n) {
     this.serverApi = new ServerApiContainer(

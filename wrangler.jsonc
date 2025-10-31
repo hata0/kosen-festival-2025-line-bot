@@ -3,7 +3,10 @@
   "name": "kosen-festival-2025-line-bot",
   "main": "src/cmd/server/index.ts",
   "compatibility_date": "2025-10-01",
-  "compatibility_flags": ["nodejs_compat"]
+  "compatibility_flags": ["nodejs_compat"],
+  "triggers": {
+    "crons": ["*/5 * * * *"]
+  }
   // "vars": {
   //   "MY_VAR": "my-variable"
   // },

@@ -1,7 +1,9 @@
 import { google } from "googleapis";
 import { AppError } from "@/internal/domain/error";
 import {
+  type GetReservationListInput,
   RESERVATION_ERROR_CODE,
+  RESERVATION_ORDER,
   type Reservation,
   type ReservationId,
   type ReservationRepository,
@@ -43,6 +45,27 @@ export class SpreadsheetApiReservationRepository
       throw new AppError(RESERVATION_ERROR_CODE.NOT_FOUND);
     }
     return found;
+  }
+
+  async getList(input: GetReservationListInput): Promise<Reservation[]> {
+    const all = await this.getAll();
+
+    // createdAtでソート
+    const sorted = all.sort((a, b) => {
+      if (input.order === RESERVATION_ORDER.ASCENDING) {
+        return a.createdAt.getTime() - b.createdAt.getTime();
+      } else {
+        return b.createdAt.getTime() - a.createdAt.getTime();
+      }
+    });
+
+    // ページング処理
+    const startIndex = (input.page - 1) * input.limit;
+    const endIndex = startIndex + input.limit;
+
+    const paginated = sorted.slice(startIndex, endIndex);
+
+    return paginated;
   }
 
   async count(createdBefore?: Date): Promise<number> {
