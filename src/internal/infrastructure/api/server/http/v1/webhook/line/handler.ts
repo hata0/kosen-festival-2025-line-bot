@@ -84,24 +84,24 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                   (now >= start2 && now <= end2)
                 )
               ) {
-                await this.client.pushMessage({
-                  to: userId,
-                  messages: [
-                    {
-                      type: "text",
-                      text: "利用可能期間外のため、利用できません。",
-                    },
-                  ],
-                });
+                // await this.client.pushMessage({
+                //   to: userId,
+                //   messages: [
+                //     {
+                //       type: "text",
+                //       text: "利用可能期間外のため、利用できません。",
+                //     },
+                //   ],
+                // });
                 return;
               }
             }
 
-            try {
-              switch (e.type) {
-                case "message": {
-                  switch (e.message.type) {
-                    case "text": {
+            switch (e.type) {
+              case "message": {
+                switch (e.message.type) {
+                  case "text": {
+                    try {
                       switch (e.message.text) {
                         case "予約情報": {
                           try {
@@ -121,8 +121,8 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                               this.time.now(),
                               (countOutput.count - 1) * 7,
                             );
-                            await this.client.pushMessage({
-                              to: userId,
+                            await this.client.replyMessage({
+                              replyToken: e.replyToken,
                               messages: [
                                 {
                                   type: "text",
@@ -158,8 +158,8 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                                 this.time.now(),
                                 countOutput.count * 7,
                               );
-                              await this.client.pushMessage({
-                                to: userId,
+                              await this.client.replyMessage({
+                                replyToken: e.replyToken,
                                 messages: [
                                   {
                                     type: "text",
@@ -201,8 +201,8 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                             this.time.now(),
                             (countOutput.count - 1) * 7,
                           );
-                          await this.client.pushMessage({
-                            to: userId,
+                          await this.client.replyMessage({
+                            replyToken: e.replyToken,
                             messages: [
                               {
                                 type: "text",
@@ -228,8 +228,8 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                               userId,
                             );
                           await this.reservationUsecase.delete(reservation.id);
-                          await this.client.pushMessage({
-                            to: userId,
+                          await this.client.replyMessage({
+                            replyToken: e.replyToken,
                             messages: [
                               {
                                 type: "text",
@@ -246,28 +246,29 @@ export class LineWebhookHandlerImpl implements LineWebhookHandler {
                           return;
                         }
                       }
-                    }
-                    default: {
+                    } catch (error) {
+                      console.error(error);
+
+                      await this.client.replyMessage({
+                        replyToken: e.replyToken,
+                        messages: [
+                          {
+                            type: "text",
+                            text: this.errorConverter.toMessage(error),
+                          },
+                        ],
+                      });
                       return;
                     }
                   }
-                }
-                default: {
-                  return;
+                  default: {
+                    return;
+                  }
                 }
               }
-            } catch (error) {
-              console.error(error);
-
-              await this.client.pushMessage({
-                to: userId,
-                messages: [
-                  {
-                    type: "text",
-                    text: this.errorConverter.toMessage(error),
-                  },
-                ],
-              });
+              default: {
+                return;
+              }
             }
           }),
         );
